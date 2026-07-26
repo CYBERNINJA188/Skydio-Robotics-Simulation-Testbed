@@ -18,7 +18,6 @@ A high-performance MuJoCo drone simulation environment featuring deterministic p
 ## 🎥 Live Demonstration & Codebase
 
 * **Live FPV Perception Demo:** [Watch on YouTube](https://youtu.be/Jd8fH74Pz9s)
-* **GitHub Repository:** [CYBERNINJA188/Skydio-Robotics-Simulation-Testbed](https://github.com/CYBERNINJA108)
 
 ---
 
