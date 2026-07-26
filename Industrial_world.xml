@@ -1,0 +1,89 @@
+<mujoco model="industrial_server_datacenter_warehouse">
+  <!-- 1. Include the drone at the top -->
+  <include file="x2.xml"/>
+  <option timestep="0.005" gravity="0 0 -9.81"/>
+
+  <asset>
+    <!-- Darker industrial atmosphere with cool LED accent colors -->
+    <texture type="skybox" builtin="gradient" rgb1="0.02 0.03 0.05" rgb2="0.01 0.01 0.02" width="512" height="512"/>
+    <texture type="2d" name="floor_grid" builtin="checker" rgb1="0.10 0.11 0.13" rgb2="0.18 0.19 0.22" width="512" height="512"/>
+    <material name="floor_mat" texture="floor_grid" texrepeat="20 20" reflectance="0.15"/>
+    <material name="wall_mat" rgba="0.25 0.27 0.30 1"/>
+    <material name="ceiling_mat" rgba="0.15 0.16 0.18 1"/>
+    <material name="pillar_mat" rgba="0.80 0.82 0.85 1"/>
+    <material name="server_rack_mat" rgba="0.08 0.10 0.12 1" shininess="0.8"/>
+    <material name="steel_truss" rgba="0.40 0.42 0.45 1" shininess="0.5"/>
+    <material name="overhead_duct" rgba="0.60 0.62 0.65 1"/>
+    
+    <!-- Inspection Hazards, Lights & Accents -->
+    <material name="yellow_barrel_mat" rgba="0.95 0.72 0.05 1"/>
+    <material name="red_hazard_mat" rgba="0.85 0.12 0.12 1"/>
+    <material name="led_green" rgba="0.1 1.0 0.2 1" emission="0.9"/>
+    <material name="led_red" rgba="1.0 0.1 0.1 1" emission="0.9"/>
+    <material name="crack_mat" rgba="0.05 0.05 0.05 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- Overhead Industrial / Server Room Lighting -->
+    <light pos="0 0 7.5" dir="0 0 -1" diffuse="0.75 0.78 0.85" specular="0.3 0.3 0.3"/>
+    <light pos="-6 0 7.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" specular="0.1 0.1 0.1"/>
+    <light pos="6 0 7.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" specular="0.1 0.1 0.1"/>
+    
+    <!-- Dynamic Hazard Light (Flickering Arc/Spark) -->
+    <light name="spark_flash" pos="0 5 2.2" diffuse="1.0 0.3 0.1" specular="1 1 1"/>
+
+    <!-- Floor (15x15m bounds) -->
+    <geom name="floor" type="plane" size="15 15 0.1" material="floor_mat"/>
+
+    <!-- 1. Enclosed Room: 4 Outer Walls -->
+    <geom name="wall_north" type="box" size="15 0.2 4" pos="0 15 4" material="wall_mat"/>
+    <geom name="wall_south" type="box" size="15 0.2 4" pos="0 -15 4" material="wall_mat"/>
+    <geom name="wall_east" type="box" size="0.2 15 4" pos="15 0 4" material="wall_mat"/>
+    <geom name="wall_west" type="box" size="0.2 15 4" pos="-15 0 4" material="wall_mat"/>
+
+    <!-- Wall Crack Decal -->
+    <geom name="wall_crack_north" type="box" size="0.8 0.01 0.4" pos="2 14.8 3" material="crack_mat"/>
+
+    <!-- 2. Ceiling / Roof -->
+    <geom name="roof" type="plane" size="15 15 0.1" pos="0 0 8" quat="0 1 0 0" material="ceiling_mat"/>
+
+    <!-- 3. Grid of Vertical Support Pillars -->
+    <geom name="pillar_a1" type="box" size="0.25 0.25 4" pos="-8 8 4" material="pillar_mat"/>
+    <geom name="pillar_a2" type="box" size="0.25 0.25 4" pos="-8 0 4" material="pillar_mat"/>
+    <geom name="pillar_a3" type="box" size="0.25 0.25 4" pos="-8 -8 4" material="pillar_mat"/>
+    <geom name="pillar_b1" type="box" size="0.25 0.25 4" pos="0 8 4" material="pillar_mat"/>
+    <geom name="pillar_b2" type="box" size="0.25 0.25 4" pos="0 -8 4" material="pillar_mat"/>
+    <geom name="pillar_c1" type="box" size="0.25 0.25 4" pos="8 8 4" material="pillar_mat"/>
+    <geom name="pillar_c2" type="box" size="0.25 0.25 4" pos="8 0 4" material="pillar_mat"/>
+    <geom name="pillar_c3" type="box" size="0.25 0.25 4" pos="8 -8 4" material="pillar_mat"/>
+
+    <!-- 4. Server Rack Aisles with Status LEDs -->
+    <geom name="server_row_l1" type="box" size="0.8 5.0 1.2" pos="-11 3 1.2" material="server_rack_mat"/>
+    <geom name="server_row_l2" type="box" size="0.8 5.0 1.2" pos="-5 3 1.2" material="server_rack_mat"/>
+    <geom name="rack_led_1" type="sphere" size="0.05" pos="-4.1 5.0 2.0" material="led_green"/>
+    <geom name="rack_led_2" type="sphere" size="0.05" pos="-4.1 3.0 2.0" material="led_red"/>
+
+    <geom name="server_row_r1" type="box" size="0.8 5.0 1.2" pos="5 3 1.2" material="server_rack_mat"/>
+    <geom name="server_row_r2" type="box" size="0.8 5.0 1.2" pos="11 3 1.2" material="server_rack_mat"/>
+    <geom name="rack_led_3" type="sphere" size="0.05" pos="4.1 4.0 2.0" material="led_green"/>
+
+    <!-- 5. Overhead Trusses & Cable Trays -->
+    <geom name="truss_main_1" type="box" size="15 0.1 0.2" pos="0 8 7.0" material="steel_truss"/>
+    <geom name="truss_main_2" type="box" size="15 0.1 0.2" pos="0 0 7.0" material="steel_truss"/>
+    <geom name="truss_main_3" type="box" size="15 0.1 0.2" pos="0 -8 7.0" material="steel_truss"/>
+    <geom name="air_duct_1" type="cylinder" size="0.3 15" pos="-3 0 7.2" quat="0.707 0.707 0 0" material="overhead_duct"/>
+
+    <!-- 6. Target Inspection Hazard Area -->
+    <body name="target_structure" pos="0 5 0">
+      <geom name="structure_base" type="box" size="1.2 0.3 1.2" pos="0 0 1.2" material="wall_mat"/>
+      <geom name="leak_hazard_box" type="box" size="0.25 0.35 0.25" pos="0 -0.1 1.8" material="red_hazard_mat"/>
+      <geom name="spark_emitter" type="sphere" size="0.06" pos="0 -0.1 2.1" material="led_red"/>
+    </body>
+
+    <body name="barrel_cluster" pos="2 -3 0">
+      <geom name="barrel_1" type="cylinder" size="0.35 0.5" pos="0 0 0.5" material="yellow_barrel_mat"/>
+      <geom name="barrel_2" type="cylinder" size="0.35 0.5" pos="0.8 0.2 0.5" material="yellow_barrel_mat"/>
+      <geom name="barrel_3" type="cylinder" size="0.35 0.5" pos="0.3 0.7 0.5" material="red_hazard_mat"/>
+    </body>
+  </worldbody>
+</mujoco>
